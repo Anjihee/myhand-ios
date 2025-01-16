@@ -1,0 +1,5 @@
+extension ExpViewModel {
+    func getLatestExp() -> Exp? {
+        return responseDto?.quests.first
+    }
+}

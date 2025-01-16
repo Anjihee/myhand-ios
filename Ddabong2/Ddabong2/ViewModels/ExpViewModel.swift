@@ -5,7 +5,6 @@
 //  Created by 이윤주 on 1/15/25.
 //
 
-
 import Foundation
 import Alamofire
 
@@ -51,4 +50,10 @@ class ExpViewModel{
     }
     
     
+}
+
+extension ExpViewModel {
+    func getLatestExp() -> Exp? {
+        return responseDto?.quests.first
+    }
 }
