@@ -14,6 +14,7 @@ class Container1ViewController:UIViewController{
     @IBOutlet weak var bg2: UILabel!
     @IBOutlet weak var bg0: UILabel!
     
+    @IBOutlet weak var imgNoExp: UIImageView!
     @IBOutlet weak var lblLongestWeek: UILabel!
     @IBOutlet weak var lblPercent: UILabel!
     @IBOutlet weak var lblWeeksCnt: UILabel!
@@ -24,6 +25,13 @@ class Container1ViewController:UIViewController{
     var expHistory: [String: Int] = [:]
     var resultList: [String] = []
     var historySize:Int = 0
+    
+    
+    @IBOutlet weak var lblGraph2: UILabel!
+    @IBOutlet weak var lblGraph1: UILabel!
+    @IBOutlet weak var img1: UIImageView!
+    @IBOutlet weak var img2: UIImageView!
+    @IBOutlet weak var img3: UIImageView!
     
     // MARK: - ViewModel
     private let userInfoViewModel = UserInfoViewModel()
@@ -43,37 +51,40 @@ class Container1ViewController:UIViewController{
         setupBindings()
         
         // 정렬된 키와 값
-//        let sortedKeys = self.expHistory.keys.sorted(by: <)
-//        let sortedValues = sortedKeys.map { expHistory[$0]! }
-        
-        let sortedKeys = ["2023", "2022", "2021", "2020"]
-        let sortedValues = [12000, 10000, 7000, 7000]
+        let sortedKeys = self.expHistory.keys.sorted(by: <)
+        let sortedValues = sortedKeys.map { expHistory[$0]! }
+//        
+//        let sortedKeys = ["2023", "2022", "2021", "2020"]
+//        let sortedValues = [12000, 10000, 7000, 7000]
         
         view.backgroundColor = UIColor(hex: "fff8f8")
         // 테두리 및 corner radius 설정
-        bg1.layer.borderWidth = 2.0 // 테두리 두께
+        bg1.layer.borderWidth = 1.0 // 테두리 두께
         bg1.backgroundColor = .white
         bg1.layer.borderColor = UIColor(hex: "eaeaea").cgColor // 테두리 색상
         bg1.layer.cornerRadius = 40.0 // 테두리의 둥글기
         bg1.layer.masksToBounds = true // corner radius가 적용되도록 설정
         
         // 테두리 및 corner radius 설정
-        bg2.layer.borderWidth = 2.0 // 테두리 두께
+        bg2.layer.borderWidth = 1.0 // 테두리 두께
         bg2.backgroundColor = .white
         bg2.layer.borderColor = UIColor(hex: "eaeaea").cgColor // 테두리 색상
         bg2.layer.cornerRadius = 40.0 // 테두리의 둥글기
         bg2.layer.masksToBounds = true // corner radius가 적용되도록 설정
         
         // 테두리 및 corner radius 설정
-        bg0.layer.borderWidth = 2.0 // 테두리 두께
+        bg0.layer.borderWidth = 1.0 // 테두리 두께
         bg0.backgroundColor = .white
         bg0.layer.borderColor = UIColor(hex: "eaeaea").cgColor // 테두리 색상
         bg0.layer.cornerRadius = 40.0 // 테두리의 둥글기
         bg0.layer.masksToBounds = true // corner radius가 적용되도록 설정
         
         let graphView = BarGraphView()
+        graphView.img = imgNoExp
         graphView.data = sortedValues // sortedValues
         graphView.labels = sortedKeys// sortedKeys
+        graphView.lbl1 = lblGraph1
+        graphView.lbl2 = lblGraph2
         graphView.backgroundColor = .clear
         graphView.frame = CGRect(x:40, y: 100, width: uiView3.frame.width-100, height: 230)
         graphView.translatesAutoresizingMaskIntoConstraints = false // 오토레이아웃 설정을 활성화
@@ -128,18 +139,46 @@ class Container1ViewController:UIViewController{
                 self.expHistory = dto.expHistory
                 self.resultList = dto.resultList
                 self.historySize = dto.historySize
+                // 이미지 뷰 배열
+                let imageViews = [self.img1, self.img2, self.img3]
+
+                  // resultList 값에 따라 이미지 설정
+                  for (index, result) in self.resultList.prefix(3).enumerated() {
+                      let imageName = self.getImageName(res: result)
+                      imageViews[index]?.image = UIImage(named: imageName)
+                  }
             }
         }
     }
     
+    func getImageName(res:String)->String{
+        if res == "MAX" {
+            return "imgRedChecked"
+        }else if res == "MED"{
+            return "imgYellowChecked"
+        }
+        else if res == "ETC" {
+            return "imgFullBlue"
+            //return "imgYellowChecked"
+        }else{
+            return "imgGrayCircle"
+        }
+    }
 }
 
 class BarGraphView: UIView {
     var data: [Int] = []
     var labels: [String] = []
+    var img:UIImageView = UIImageView()
+    var lbl1:UILabel = UILabel()
+    var lbl2:UILabel = UILabel()
     
     override func draw(_ rect: CGRect) {
-        guard data.count > 0 else { return }
+        guard data.count > 0 else {
+            img.isHidden = false
+            lbl1.isHidden = false
+            lbl2.isHidden = false
+        return }
         
         let maxData = data.max() ?? 1
         let barWidth = rect.width / CGFloat(data.count) - 40

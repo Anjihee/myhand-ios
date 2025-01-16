@@ -22,13 +22,17 @@ class MyPageViewController: UIViewController {
     private let nextLevelLabel = UILabel()
     private let progressBar = UIProgressView(progressViewStyle: .default)
     private let progressPercentageLabel = UILabel()
-    private let recentExpPointsLabel = UILabel() // 경험치 정보 라벨
-
 
     // 경험치 현황 UI
     private let experienceContainerView = UIView() // 경험치 섹션 컨테이너
     private let experienceTitleLabel = UILabel()
     private let recentExpLabel = UILabel()
+    private let recentExpContainerView = UIView() // 최근 경험치 표시 컨테이너
+    private let recentExpNameLabel = UILabel() // 경험치 이름 라벨
+    private let recentExpDetailLabel = UILabel() // 경험치 세부 정보 라벨
+    private let recentExpPointsLabel = UILabel() // 경험치 정보 라벨
+    private let questTypeLabel = UILabel() // 퀘스트 타입 라벨
+
     private let viewAllButton = UIButton(type: .system)
     private let thisYearExpLabel = UILabel()
     private let thisYearProgressBar = UIProgressView(progressViewStyle: .default)
@@ -36,10 +40,6 @@ class MyPageViewController: UIViewController {
     private let lastYearProgressBar = UIProgressView(progressViewStyle: .default)
     private let thisYearProgressPercentageLabel = UILabel()
     private let lastYearProgressPercentageLabel = UILabel()
-
-    private let recentExpContainerView = UIView() // 최근 경험치 표시 컨테이너
-    private let recentExpNameLabel = UILabel() // 경험치 이름 라벨
-    private let recentExpDetailLabel = UILabel() // 경험치 세부 정보 라벨
 
     
     override func viewDidLoad() {
@@ -91,9 +91,9 @@ class MyPageViewController: UIViewController {
            alertIcon.tintColor = .black
            headerContainer.addSubview(alertIcon)
            alertIcon.translatesAutoresizingMaskIntoConstraints = false
-
+           
            NSLayoutConstraint.activate([
-               headerContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 50), // Safe Area 무시하고 5 아래로 이동
+               headerContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 55), // Safe Area 무시하고 5 아래로 이동
                headerContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                headerContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                headerContainer.heightAnchor.constraint(equalToConstant: 50),
@@ -112,34 +112,32 @@ class MyPageViewController: UIViewController {
                alertIcon.heightAnchor.constraint(equalToConstant: 24)
            ])
            
-    
-           
        }
 
     // MARK: - Actions
     @objc private func openAlarmViewController() {
-//        let alarmViewController = AlarmViewController() // AlarmViewController 인스턴스 생성
+        //        let alarmViewController = AlarmViewController() // AlarmViewController 인스턴스 생성
+        //        navigationController?.pushViewController(alarmViewController, animated: true)
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let nextViewController = storyboard.instantiateViewController(withIdentifier: "AlarmViewController")
+        nextViewController.modalPresentationStyle = .fullScreen // 전체 화면 전환
+        nextViewController.modalTransitionStyle = .coverVertical // 아래에서 위로 전환
+        present(nextViewController, animated: true, completion: nil)
 
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let nextViewController = storyboard.instantiateViewController(withIdentifier: "AlarmViewController")
-            nextViewController.modalPresentationStyle = .fullScreen // 전체 화면 전환
-            nextViewController.modalTransitionStyle = .coverVertical // 아래에서 위로 전환
-            present(nextViewController, animated: true, completion: nil)
-         
-
-        //navigationController?.pushViewController(alarmViewController, animated: true)
     }
+    
     // MARK: - UI Setup
     private func setupUI() {
 
+        recentExpContainerView.addSubview(expCircleView)
         // 탭 제스처 인식기 추가
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapRecentExpContainer))
         recentExpContainerView.addGestureRecognizer(tapGesture)
         recentExpContainerView.isUserInteractionEnabled = true // 제스처 인식 활성화
-
+        expCircleView.isUserInteractionEnabled = false // 내부 뷰가 터치 이벤트를 막지 않도록 설정
         
         pinkBackgroundView.backgroundColor = UIColor(red: 1.0, green: 0.956, blue: 0.956, alpha: 1.0) // #FFF4F4
-        pinkBackgroundView.layer.cornerRadius = 12
+        pinkBackgroundView.layer.cornerRadius = 0
         view.addSubview(pinkBackgroundView)
 
         whiteContainerView.backgroundColor = .white
@@ -152,9 +150,10 @@ class MyPageViewController: UIViewController {
 
         profileImageView.contentMode = .scaleAspectFill
         profileImageView.clipsToBounds = true
-        profileImageView.layer.cornerRadius = 40
-        profileImageView.layer.borderWidth = 2
-        profileImageView.layer.borderColor = UIColor.lightGray.cgColor
+        // 프로필 이미지 원형 처리
+          profileImageView.layer.cornerRadius = 40 // 너비/2로 설정
+          profileImageView.layer.borderWidth = 2
+          profileImageView.layer.borderColor = UIColor.lightGray.cgColor
         whiteContainerView.addSubview(profileImageView)
 
         greetingLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
@@ -208,31 +207,36 @@ class MyPageViewController: UIViewController {
         recentExpLabel.textAlignment = .left
         experienceContainerView.addSubview(recentExpLabel)
         
-        // 최근 경험치 컨테이너 스타일
-        recentExpContainerView.backgroundColor = UIColor(red: 1.0, green: 0.96, blue: 0.96, alpha: 1.0) // 연핑크 배경
-        recentExpContainerView.layer.cornerRadius = 12
-        recentExpContainerView.layer.shadowColor = UIColor.black.cgColor
-        recentExpContainerView.layer.shadowOpacity = 0.1
-        recentExpContainerView.layer.shadowOffset = CGSize(width: 0, height: 2)
-        recentExpContainerView.layer.shadowRadius = 4
-        view.addSubview(recentExpContainerView)
+        recentExpContainerView.backgroundColor = UIColor(red: 1.0, green: 0.96, blue: 0.96, alpha: 1.0)
+               recentExpContainerView.layer.cornerRadius = 12
+               recentExpContainerView.layer.shadowColor = UIColor.black.cgColor
+               recentExpContainerView.layer.shadowOpacity = 0.1
+               recentExpContainerView.layer.shadowOffset = CGSize(width: 0, height: 2)
+               recentExpContainerView.layer.shadowRadius = 4
+               recentExpContainerView.isUserInteractionEnabled = true
 
-        // 최근 경험치 이름 라벨
-        recentExpNameLabel.font = UIFont.boldSystemFont(ofSize: 16)
-        recentExpNameLabel.textColor = UIColor.black
-        recentExpContainerView.addSubview(recentExpNameLabel)
+               recentExpContainerView.addGestureRecognizer(tapGesture)
+               view.addSubview(recentExpContainerView)
 
-        // 최근 경험치 세부 정보 라벨
-        recentExpDetailLabel.font = UIFont.systemFont(ofSize: 14)
-        recentExpDetailLabel.textColor = UIColor.darkGray
-        recentExpContainerView.addSubview(recentExpDetailLabel)
+               // 최근 경험치 라벨들
+               recentExpNameLabel.font = UIFont.systemFont(ofSize: 16)
+               recentExpNameLabel.textColor = .black
+               recentExpContainerView.addSubview(recentExpNameLabel)
 
-        
+               recentExpDetailLabel.font = UIFont.systemFont(ofSize: 14)
+               recentExpDetailLabel.textColor = .darkGray
+               recentExpContainerView.addSubview(recentExpDetailLabel)
 
-        viewAllButton.setTitle("전체보기 >", for: .normal)
-        viewAllButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        experienceContainerView.addSubview(viewAllButton)
-        viewAllButton.setTitleColor(UIColor(hex: "#757575"), for: .normal)
+               recentExpPointsLabel.font = UIFont.systemFont(ofSize: 14)
+               recentExpPointsLabel.textColor = .black
+               recentExpContainerView.addSubview(recentExpPointsLabel)
+
+               questTypeLabel.font = UIFont.systemFont(ofSize: 14)
+               questTypeLabel.textColor = .darkGray
+               recentExpContainerView.addSubview(questTypeLabel)
+
+
+
 
 
         thisYearExpLabel.text = "올해 획득한 경험치"
@@ -271,7 +275,7 @@ class MyPageViewController: UIViewController {
         thisYearProgressPercentageLabel.translatesAutoresizingMaskIntoConstraints = false
         lastYearProgressPercentageLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        
+
         // 버튼 클릭 시 ExpAllViewController로 이동
         viewAllButton.addTarget(self, action: #selector(didTapViewAllButton), for: .touchUpInside)
         setConstraints()
@@ -280,18 +284,19 @@ class MyPageViewController: UIViewController {
     @objc private func didTapViewAllButton() {
         // ExpAllViewController로 이동
         print("전체보기 버튼 클릭됨") // 디버깅용 로그
+        let expAllViewController = ExpAllViewController()
+        navigationController?.pushViewController(expAllViewController, animated: true)
+    }
+    
+    @objc private func didTapRecentExpContainer() {
+        print("최근 경험치 컨테이너 클릭됨") // 디버깅용 로그
+//        let expAllViewController = ExpAllViewController()
+//        navigationController?.pushViewController(expAllViewController, animated: true)
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let nextViewController = storyboard.instantiateViewController(withIdentifier: "ExpAllViewController")
         nextViewController.modalPresentationStyle = .fullScreen // 전체 화면 전환
         nextViewController.modalTransitionStyle = .coverVertical // 아래에서 위로 전환
         present(nextViewController, animated: true, completion: nil)
-     
-    }
-    
-    @objc private func didTapRecentExpContainer() {
-        print("최근 경험치 컨테이너 클릭됨") // 디버깅용 로그
-        let expAllViewController = ExpAllViewController()
-        navigationController?.pushViewController(expAllViewController, animated: true)
     }
 
     
@@ -316,125 +321,125 @@ class MyPageViewController: UIViewController {
         experienceTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         recentExpLabel.translatesAutoresizingMaskIntoConstraints = false
         recentExpContainerView.translatesAutoresizingMaskIntoConstraints = false
-        recentExpNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        recentExpDetailLabel.translatesAutoresizingMaskIntoConstraints = false
-        recentExpPointsLabel.translatesAutoresizingMaskIntoConstraints = false
+                recentExpNameLabel.translatesAutoresizingMaskIntoConstraints = false
+                recentExpDetailLabel.translatesAutoresizingMaskIntoConstraints = false
+                recentExpPointsLabel.translatesAutoresizingMaskIntoConstraints = false
+                questTypeLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+
         
         NSLayoutConstraint.deactivate(pinkBackgroundView.constraints)
         NSLayoutConstraint.deactivate(whiteContainerView.constraints)
         
         NSLayoutConstraint.activate([
-            pinkBackgroundView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60),
-            pinkBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            pinkBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            pinkBackgroundView.heightAnchor.constraint(equalToConstant: 250),
-            
-            whiteContainerView.topAnchor.constraint(equalTo: pinkBackgroundView.topAnchor, constant: 20), // 간격 조정
-            whiteContainerView.leadingAnchor.constraint(equalTo: pinkBackgroundView.leadingAnchor, constant: 24),
-            whiteContainerView.trailingAnchor.constraint(equalTo: pinkBackgroundView.trailingAnchor, constant: -24),
-            whiteContainerView.bottomAnchor.constraint(equalTo: progressBar.bottomAnchor, constant: 30), // 흰색 컨테이너를 확장
-            
-            profileImageView.topAnchor.constraint(equalTo: whiteContainerView.topAnchor, constant: 21),
-            profileImageView.leadingAnchor.constraint(equalTo: whiteContainerView.leadingAnchor, constant: 16),
-            profileImageView.widthAnchor.constraint(equalToConstant: 80),
-            profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor),
-            
-            greetingLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            greetingLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 21),
-            greetingLabel.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
-            
-            fortuneLabel.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 13),
-            fortuneLabel.leadingAnchor.constraint(equalTo: greetingLabel.leadingAnchor),
-            fortuneLabel.trailingAnchor.constraint(equalTo: greetingLabel.trailingAnchor),
-            // "경험치 현황" 위치
-               experienceTitleLabel.topAnchor.constraint(equalTo: pinkBackgroundView.bottomAnchor, constant: 24),
-               experienceTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-               experienceTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            // 핑크 배경
+               pinkBackgroundView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60),
+               pinkBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+               pinkBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+               pinkBackgroundView.heightAnchor.constraint(equalToConstant: 250),
 
-               // "최근 획득 경험치" 위치
-               recentExpLabel.topAnchor.constraint(equalTo: experienceTitleLabel.bottomAnchor, constant: 16),
-               recentExpLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-               recentExpLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            // 컨테이너 위치
-              recentExpContainerView.topAnchor.constraint(equalTo: recentExpLabel.bottomAnchor, constant: 16),
-              recentExpContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-              recentExpContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-              recentExpContainerView.heightAnchor.constraint(equalToConstant: 80),
+               // 흰색 컨테이너
+               whiteContainerView.topAnchor.constraint(equalTo: pinkBackgroundView.topAnchor, constant: 20),
+               whiteContainerView.leadingAnchor.constraint(equalTo: pinkBackgroundView.leadingAnchor, constant: 16),
+               whiteContainerView.trailingAnchor.constraint(equalTo: pinkBackgroundView.trailingAnchor, constant: -16),
+               whiteContainerView.bottomAnchor.constraint(equalTo: progressBar.bottomAnchor, constant: 30),
+               
+               // 프로필 이미지
+               profileImageView.topAnchor.constraint(equalTo: whiteContainerView.topAnchor, constant: 16),
+               profileImageView.leadingAnchor.constraint(equalTo: whiteContainerView.leadingAnchor, constant: 16),
+               profileImageView.widthAnchor.constraint(equalToConstant: 80),
+               profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor),
+               
 
-              // 이름 라벨 위치
-              recentExpNameLabel.topAnchor.constraint(equalTo: recentExpContainerView.topAnchor, constant: 12),
-              recentExpNameLabel.leadingAnchor.constraint(equalTo: recentExpContainerView.leadingAnchor, constant: 16),
-              recentExpNameLabel.trailingAnchor.constraint(lessThanOrEqualTo: recentExpContainerView.trailingAnchor, constant: -16),
+               // 환영 인사 라벨
+               greetingLabel.topAnchor.constraint(equalTo: whiteContainerView.topAnchor, constant: 16),
+               greetingLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 16),
+               greetingLabel.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
+               greetingLabel.heightAnchor.constraint(equalToConstant: 22),
 
-              // 세부 정보 라벨 위치
-              recentExpDetailLabel.topAnchor.constraint(equalTo: recentExpNameLabel.bottomAnchor, constant: 4),
-              recentExpDetailLabel.leadingAnchor.constraint(equalTo: recentExpContainerView.leadingAnchor, constant: 16),
-              recentExpDetailLabel.trailingAnchor.constraint(lessThanOrEqualTo: recentExpContainerView.trailingAnchor, constant: -16),
-              recentExpDetailLabel.bottomAnchor.constraint(lessThanOrEqualTo: recentExpContainerView.bottomAnchor, constant: -12),
-            
-            levelLabel.topAnchor.constraint(equalTo: fortuneLabel.bottomAnchor, constant: 21), // 프로필 아래로 이동
-            levelLabel.leadingAnchor.constraint(equalTo: whiteContainerView.leadingAnchor, constant: 16),
-            
-            nextLevelLabel.centerYAnchor.constraint(equalTo: levelLabel.centerYAnchor),
-            nextLevelLabel.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
-            
-            progressBar.topAnchor.constraint(equalTo: levelLabel.bottomAnchor, constant: 13),
-            progressBar.leadingAnchor.constraint(equalTo: whiteContainerView.leadingAnchor, constant: 16),
-            progressBar.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
-            progressBar.heightAnchor.constraint(equalToConstant: 30),
-            
-            
-            progressPercentageLabel.centerXAnchor.constraint(equalTo: progressBar.centerXAnchor),
-            progressPercentageLabel.centerYAnchor.constraint(equalTo: progressBar.centerYAnchor),
-            
-            experienceContainerView.topAnchor.constraint(equalTo: pinkBackgroundView.bottomAnchor, constant: 21),
-            experienceContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            experienceContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            
-            experienceTitleLabel.topAnchor.constraint(equalTo: experienceContainerView.topAnchor),
-            experienceTitleLabel.leadingAnchor.constraint(equalTo: experienceContainerView.leadingAnchor),
-            
-            recentExpLabel.topAnchor.constraint(equalTo: experienceTitleLabel.bottomAnchor, constant: 21),
-            recentExpLabel.leadingAnchor.constraint(equalTo: experienceContainerView.leadingAnchor),
-            
-            viewAllButton.centerYAnchor.constraint(equalTo: recentExpLabel.centerYAnchor),
-            viewAllButton.trailingAnchor.constraint(equalTo: experienceContainerView.trailingAnchor),
-            
-            // 올해 획득한 경험치 라벨 위치
-                thisYearExpLabel.topAnchor.constraint(equalTo: recentExpContainerView.bottomAnchor, constant: 32), // 간격 추가
-                thisYearExpLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-                thisYearExpLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+               // 동그라미 위치 설정
+                  expCircleView.centerYAnchor.constraint(equalTo: recentExpPointsLabel.centerYAnchor), // 텍스트와 수직 정렬
+                  expCircleView.trailingAnchor.constraint(equalTo: recentExpPointsLabel.leadingAnchor, constant: -8), // 텍스트와 간격 설정
+                  expCircleView.widthAnchor.constraint(equalToConstant: 12), // 동그라미 너비
+                  expCircleView.heightAnchor.constraint(equalTo: expCircleView.widthAnchor), // 정사각형
+               // 운세 라벨
+               fortuneLabel.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 8),
+               fortuneLabel.leadingAnchor.constraint(equalTo: greetingLabel.leadingAnchor),
+               fortuneLabel.trailingAnchor.constraint(equalTo: greetingLabel.trailingAnchor),
+              
+               // 레벨 정보
+               levelLabel.topAnchor.constraint(equalTo: fortuneLabel.bottomAnchor, constant: 16),
+               levelLabel.leadingAnchor.constraint(equalTo: whiteContainerView.leadingAnchor, constant: 16),
 
-                // 올해 획득한 경험치 그래프 위치
-                thisYearProgressBar.topAnchor.constraint(equalTo: thisYearExpLabel.bottomAnchor, constant: 8),
-                thisYearProgressBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-                thisYearProgressBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-                thisYearProgressBar.heightAnchor.constraint(equalToConstant: 20),
+               nextLevelLabel.centerYAnchor.constraint(equalTo: levelLabel.centerYAnchor),
+               nextLevelLabel.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
 
-                // 작년까지 획득한 경험치 라벨 위치
-                lastYearExpLabel.topAnchor.constraint(equalTo: thisYearProgressBar.bottomAnchor, constant: 32), // 간격 추가
-                lastYearExpLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-                lastYearExpLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+               // 진행 바
+               progressBar.topAnchor.constraint(equalTo: levelLabel.bottomAnchor, constant: 8),
+               progressBar.leadingAnchor.constraint(equalTo: whiteContainerView.leadingAnchor, constant: 16),
+               progressBar.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
+               progressBar.heightAnchor.constraint(equalToConstant: 20),
 
-                // 작년까지 획득한 경험치 그래프 위치
-                lastYearProgressBar.topAnchor.constraint(equalTo: lastYearExpLabel.bottomAnchor, constant: 8),
-                lastYearProgressBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-                lastYearProgressBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-                lastYearProgressBar.heightAnchor.constraint(equalToConstant: 20),
-            // 경험치 정보 라벨 위치
-               recentExpPointsLabel.bottomAnchor.constraint(equalTo: recentExpContainerView.bottomAnchor, constant: -12),
-               recentExpPointsLabel.trailingAnchor.constraint(equalTo: recentExpContainerView.trailingAnchor, constant: -16),
-               recentExpPointsLabel.leadingAnchor.constraint(greaterThanOrEqualTo: recentExpDetailLabel.trailingAnchor, constant: 8) // 여유 공간 확보
-           ,
+               // 진행 퍼센트 라벨
+               progressPercentageLabel.centerXAnchor.constraint(equalTo: progressBar.centerXAnchor),
+               progressPercentageLabel.centerYAnchor.constraint(equalTo: progressBar.centerYAnchor),
+               
+            // 경험치 현황 타이틀
+            experienceTitleLabel.topAnchor.constraint(equalTo: pinkBackgroundView.bottomAnchor, constant: 24),
+            experienceTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            experienceTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            
+            // 최근 획득 경험치 라벨
+            recentExpLabel.topAnchor.constraint(equalTo: experienceTitleLabel.bottomAnchor, constant: 16),
+            recentExpLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            recentExpLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            
+            // 최근 경험치 컨테이너
+            recentExpContainerView.topAnchor.constraint(equalTo: recentExpLabel.bottomAnchor, constant: 16),
+            recentExpContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            recentExpContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            recentExpContainerView.heightAnchor.constraint(equalToConstant: 80),
+            
+            // 최근 경험치 내부 라벨들
+            recentExpNameLabel.topAnchor.constraint(equalTo: recentExpContainerView.topAnchor, constant: 12),
+            recentExpNameLabel.leadingAnchor.constraint(equalTo: recentExpContainerView.leadingAnchor, constant: 16),
+            
+            recentExpDetailLabel.topAnchor.constraint(equalTo: recentExpNameLabel.bottomAnchor, constant: 4),
+            recentExpDetailLabel.leadingAnchor.constraint(equalTo: recentExpContainerView.leadingAnchor, constant: 16),
+            
+            questTypeLabel.bottomAnchor.constraint(equalTo: recentExpContainerView.bottomAnchor, constant: -12),
+            questTypeLabel.leadingAnchor.constraint(equalTo: recentExpContainerView.leadingAnchor, constant: 16),
+            
+            recentExpPointsLabel.centerYAnchor.constraint(equalTo: recentExpContainerView.centerYAnchor),
+            recentExpPointsLabel.trailingAnchor.constraint(equalTo: recentExpContainerView.trailingAnchor, constant: -16),
+            
+            // 올해 획득한 경험치
+            thisYearExpLabel.topAnchor.constraint(equalTo: recentExpContainerView.bottomAnchor, constant: 32),
+            thisYearExpLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            thisYearExpLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            
+            thisYearProgressBar.topAnchor.constraint(equalTo: thisYearExpLabel.bottomAnchor, constant: 8),
+            thisYearProgressBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            thisYearProgressBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            thisYearProgressBar.heightAnchor.constraint(equalToConstant: 20),
+            
+            thisYearProgressPercentageLabel.centerXAnchor.constraint(equalTo: thisYearProgressBar.centerXAnchor),
+            thisYearProgressPercentageLabel.centerYAnchor.constraint(equalTo: thisYearProgressBar.centerYAnchor),
+            
+            // 작년까지 획득한 경험치
+            lastYearExpLabel.topAnchor.constraint(equalTo: thisYearProgressBar.bottomAnchor, constant: 32),
+            lastYearExpLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            lastYearExpLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            
+            lastYearProgressBar.topAnchor.constraint(equalTo: lastYearExpLabel.bottomAnchor, constant: 8),
+            lastYearProgressBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            lastYearProgressBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            lastYearProgressBar.heightAnchor.constraint(equalToConstant: 20),
+            
+            lastYearProgressPercentageLabel.centerXAnchor.constraint(equalTo: lastYearProgressBar.centerXAnchor),
+            lastYearProgressPercentageLabel.centerYAnchor.constraint(equalTo: lastYearProgressBar.centerYAnchor)
+        ])
 
-                // 올해 경험치 퍼센트 위치
-                thisYearProgressPercentageLabel.centerXAnchor.constraint(equalTo: thisYearProgressBar.centerXAnchor),
-                thisYearProgressPercentageLabel.centerYAnchor.constraint(equalTo: thisYearProgressBar.centerYAnchor),
-
-                // 작년 경험치 퍼센트 위치
-                lastYearProgressPercentageLabel.centerXAnchor.constraint(equalTo: lastYearProgressBar.centerXAnchor),
-                lastYearProgressPercentageLabel.centerYAnchor.constraint(equalTo: lastYearProgressBar.centerYAnchor)
-            ])
     }
 
     private func setupCustomTitle() {
@@ -475,28 +480,41 @@ class MyPageViewController: UIViewController {
                }
            }
     }
+    
+    // MARK: - 동그라미 뷰 추가
+    private let expCircleView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(hex: "#FF6C4A") // 원의 색상
+        view.layer.cornerRadius = 6 // 반지름 설정 (정사각형 -> 원)
+        view.clipsToBounds = true
+        return view
+    }()
+    
     private func updateLatestExp() {
-        guard let latestExp = expViewModel.getLatestExp() else {
-            recentExpNameLabel.font = UIFont.systemFont(ofSize: 16) // 기본 폰트
-            recentExpNameLabel.textColor = UIColor.black
-            
-            recentExpNameLabel.text = "최근 완료된 퀘스트 없음"
-            recentExpDetailLabel.text = "데이터를 확인해주세요."
-            recentExpPointsLabel.text = ""
-            return
-        }
+           guard let latestExp = expViewModel.getLatestExp() else {
+               recentExpNameLabel.text = "최근 완료된 퀘스트 없음"
+               recentExpDetailLabel.text = "데이터를 확인해주세요."
+               recentExpPointsLabel.text = ""
+               questTypeLabel.text = ""
+               return
+           }
 
-        // 최근 경험치 정보 업데이트
-        recentExpNameLabel.text = latestExp.name // 퀘스트 이름
-        recentExpDetailLabel.text = "\(latestExp.questType)" // 세부 정보
-        recentExpPointsLabel.text = "\(latestExp.expAmount) D" // 경험치 정보
+           let title: String
+           switch latestExp.questType {
+           case "hr": title = "인사평가"
+           case "job": title = "직무별 퀘스트"
+           case "leader": title = "리더부여 퀘스트"
+           default: title = "전사 프로젝트"
+           }
 
-        // 탭 제스처 추가
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapRecentExpContainer))
-        recentExpContainerView.addGestureRecognizer(tapGesture)
-        recentExpContainerView.isUserInteractionEnabled = true
-    }
-  
+           recentExpNameLabel.text = latestExp.name
+           //recentExpDetailLabel.text = "\(latestExp.questType)"
+           //recentExpDetailLabel.text = "\(latestExp.questType)"
+           recentExpPointsLabel.text = "\(latestExp.expAmount) D"
+           questTypeLabel.text = title
+       }
+
     private func updateUI(with data: MyPageResponseDto) {
         greetingLabel.text = "\(userInfoViewModel.userInfo?.name ?? "")님, 안녕하세요!"
         

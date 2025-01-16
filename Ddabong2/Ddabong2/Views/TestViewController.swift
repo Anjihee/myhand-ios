@@ -32,6 +32,7 @@ class TestViewController:UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupSideMenu()
         switchToViewController(identifier: "CV1")
         
     }

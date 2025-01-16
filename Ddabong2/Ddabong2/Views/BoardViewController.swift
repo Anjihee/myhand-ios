@@ -233,6 +233,8 @@ class BoardViewController: UIViewController, UITableViewDelegate, UITableViewDat
         ])
         // 버튼에 액션 연결
         menuButton.addTarget(self, action: #selector(didTapDrawerButton), for: .touchUpInside)
+        // 알람 뷰 연결
+        notificationButton.addTarget(self, action: #selector(didAlarmClicked), for: .touchUpInside)
     }
 
     private func setupTableView() {
@@ -290,7 +292,15 @@ class BoardViewController: UIViewController, UITableViewDelegate, UITableViewDat
         present(sideMenu!, animated: true, completion: nil)
     }
 
-
+    @objc private func didAlarmClicked(){
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let nextViewController = storyboard.instantiateViewController(withIdentifier: "AlarmViewController")
+        nextViewController.modalPresentationStyle = .fullScreen // 전체 화면 전환
+        nextViewController.modalTransitionStyle = .coverVertical // 아래에서 위로 전환
+        present(nextViewController, animated: true, completion: nil)
+     
+    }
     
     // MARK: - TableView DataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

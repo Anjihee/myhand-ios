@@ -22,6 +22,22 @@ class RankingViewController: UIViewController, UITableViewDataSource {
         return view
     }()
 
+    
+    private let footerLabel: UILabel = {
+        let label = UILabel()
+        label.text = "팀별 총 획득량 / 팀원 수 기준"
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.textColor = UIColor.lightGray
+        label.textAlignment = .right
+        return label
+    }()
+    
+    private let footerDivider: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.lightGray.withAlphaComponent(0.5) // 구분선 색상
+        return view
+    }()
+    
     // 드로어 아이콘
     private let hamburgerMenu: UIButton = {
         let button = UIButton()
@@ -165,7 +181,7 @@ class RankingViewController: UIViewController, UITableViewDataSource {
         }
 
         teamRankingLabel.text = "이번 주 우리 팀은 \(myIndex)등 이에요"
-        rankingDetailLabel.text = "\(myIndex - 1)등까지 \(needExp) do 남았어요. 파이팅!"
+        rankingDetailLabel.text = "\(myIndex-1)등까지 \(needExp) do 남았어요. 파이팅!"
     }
     
     private func getCurrentMonthAndWeek() -> String {
@@ -203,7 +219,7 @@ class RankingViewController: UIViewController, UITableViewDataSource {
 
     private let bottomSheetTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 20)
+        label.font = UIFont.boldSystemFont(ofSize: 16)
         label.textAlignment = .center
         return label
     }()
@@ -239,7 +255,7 @@ class RankingViewController: UIViewController, UITableViewDataSource {
         setupSideMenu()
         // 햄버거 메뉴 버튼 설정
         hamburgerMenu.addTarget(self, action: #selector(openSideMenu), for: .touchUpInside)
-        
+        alertIcon.addTarget(self, action: #selector(openAlarm), for: .touchUpInside)
     }
     // 상태 표시줄 텍스트를 검정색으로 설정
        override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -260,7 +276,14 @@ class RankingViewController: UIViewController, UITableViewDataSource {
            present(sideMenu, animated: true, completion: nil)
        }
 
-
+    @objc private func openAlarm(){
+           let storyboard = UIStoryboard(name: "Main", bundle: nil)
+           let nextViewController = storyboard.instantiateViewController(withIdentifier: "AlarmViewController")
+           nextViewController.modalPresentationStyle = .fullScreen // 전체 화면 전환
+           nextViewController.modalTransitionStyle = .coverVertical // 아래에서 위로 전환
+           present(nextViewController, animated: true, completion: nil)
+        
+       }
    
     private func setupStatusBarBackground() {
             // 상태 표시줄 배경 뷰 추가
@@ -427,9 +450,38 @@ class RankingViewController: UIViewController, UITableViewDataSource {
         tableView.dataSource = self
         tableView.register(RankingTableViewCell.self, forCellReuseIdentifier: "RankingCell")
         bottomSheet.addSubview(tableView)
+        bottomSheet.addSubview(footerDivider) // 구분선 추가
+        bottomSheet.addSubview(footerLabel)  // 하단 레이블 추가
+        bottomSheet.addSubview(bottomSheetTitleLabel) // 타이틀 추가
+        
         tableView.separatorStyle = .none
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        footerDivider.translatesAutoresizingMaskIntoConstraints = false
+        footerLabel.translatesAutoresizingMaskIntoConstraints = false
+        bottomSheetTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+            // 타이틀 (n월 n주차 랭킹) 제약 조건
+            bottomSheetTitleLabel.topAnchor.constraint(equalTo: dragHandle.bottomAnchor, constant: 16),
+            bottomSheetTitleLabel.leadingAnchor.constraint(equalTo: bottomSheet.leadingAnchor, constant: 16), // 왼쪽 정렬
+            bottomSheetTitleLabel.trailingAnchor.constraint(equalTo: bottomSheet.trailingAnchor, constant: -16),
+
+            
+            // 테이블뷰 제약 조건
+            tableView.topAnchor.constraint(equalTo: bottomSheetTitleLabel.bottomAnchor, constant: 16),
+            tableView.leadingAnchor.constraint(equalTo: bottomSheet.leadingAnchor, constant: 16),
+            tableView.trailingAnchor.constraint(equalTo: bottomSheet.trailingAnchor, constant: -16),
+
+            // 구분선 제약 조건
+            footerDivider.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 8),
+            footerDivider.leadingAnchor.constraint(equalTo: bottomSheet.leadingAnchor, constant: 16),
+            footerDivider.trailingAnchor.constraint(equalTo: bottomSheet.trailingAnchor, constant: -16),
+            footerDivider.heightAnchor.constraint(equalToConstant: 1),
+            
+            // 하단 레이블 제약 조건
+            footerLabel.topAnchor.constraint(equalTo: footerDivider.bottomAnchor, constant: 8),
+            footerLabel.trailingAnchor.constraint(equalTo: bottomSheet.trailingAnchor, constant: -2), // 오른쪽 정렬
+            
+            
             tableView.topAnchor.constraint(equalTo: bottomSheetTitleLabel.bottomAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: bottomSheet.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: bottomSheet.trailingAnchor, constant: -16),
