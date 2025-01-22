@@ -18,6 +18,7 @@ class MyPageViewController: UIViewController {
     private let profileImageView = UIImageView() // 프로필 이미지
     private let greetingLabel = UILabel()
     private let fortuneLabel = UILabel()
+    
     private let levelLabel = UILabel()
     private let nextLevelLabel = UILabel()
     private let progressBar = UIProgressView(progressViewStyle: .default)
